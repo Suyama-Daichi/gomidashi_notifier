@@ -7,30 +7,34 @@ dotenv.config();
 const gomiDefine = {
     0: null,
     1: null,
-    2: '燃えるゴミ',
+    2: ['燃えるゴミ'],
     3: null,
-    4: '容器包装プラスチック・古紙',
-    5: '燃えるゴミ',
-    6: '不燃ごみ',
+    4: ['容器包装プラスチック・古紙'],
+    5: ['燃えるゴミ'],
+    6: ['ビン・缶・ペットボトル', '不燃ごみ'],
 }
 
 export async function handler(event: APIGatewayEvent, context?: Context) {
     const currentDate = new Date();
-    const tommorowDate = dateFns.addDays(currentDate, 1);
+    const tommorowDate = dateFns.addDays(currentDate, 4);
     const youbi = dateFns.getDay(tommorowDate);
-    const message = gomiDefine[youbi];
+    const typesOfGomi = gomiDefine[youbi];
 
 
     const response = {
         statusCode: 200,
-        body: { message: message }
+        body: { message: typesOfGomi }
     };
 
-    if (message && (youbi === 6 && dateFns.getWeekOfMonth(tommorowDate) % 2 === 0)) {
+    if (typesOfGomi) {
+        if ((youbi === 6 && dateFns.getWeekOfMonth(tommorowDate) % 2 !== 0)) {
+            typesOfGomi.pop();
+        }
+
         try {
-            response.body.message = (await makeRequest(message)).data;
+            response.body.message = (await makeRequest(typesOfGomi.join('・'))).data;
         } catch (error) {
-            response.body.message = 'failed'
+            response.body.message = ['failed']
         }
     }
 
