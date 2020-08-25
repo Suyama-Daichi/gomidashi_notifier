@@ -1,5 +1,5 @@
 import { Context, APIGatewayEvent } from "aws-lambda";
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import * as dotenv from "dotenv";
 import * as dateFns from 'date-fns';
 dotenv.config();
@@ -14,9 +14,9 @@ const gomiDefine = {
     6: '不燃ごみ',
 }
 
-export async function handler(event: APIGatewayEvent, context?: Context): Promise<string> {
+export async function handler(event: APIGatewayEvent, context?: Context) {
     const currentDate = new Date();
-    const tommorowDate = dateFns.addDays(currentDate, 4);
+    const tommorowDate = dateFns.addDays(currentDate, 1);
     const youbi = dateFns.getDay(tommorowDate);
     let message = gomiDefine[youbi];
 
@@ -24,15 +24,20 @@ export async function handler(event: APIGatewayEvent, context?: Context): Promis
         message = null
     }
 
+    const response = {
+        statusCode: 200,
+        body: { message: message }
+    };
+
     if (message) {
         try {
-            return await makeRequest(message);
+            response.body.message = (await makeRequest(message)).data;
         } catch (error) {
-            return 'failed'
+            response.body.message = 'failed'
         }
     }
 
-    return 'NoGomiDay';
+    return response
 }
 
 async function makeRequest(message: string) {
@@ -42,7 +47,7 @@ async function makeRequest(message: string) {
         responseType: 'json'
     });
 
-    return new Promise<any>(async (resolve, reject) => {
+    return new Promise<AxiosResponse>(async (resolve, reject) => {
         baseRequest.post('', {
             text: `明日は${message}の日です。`
         })
