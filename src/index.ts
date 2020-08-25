@@ -16,7 +16,7 @@ const gomiDefine = {
 
 export async function handler(event: APIGatewayEvent, context?: Context) {
     const currentDate = new Date();
-    const tommorowDate = dateFns.addDays(currentDate, 18);
+    const tommorowDate = dateFns.addDays(currentDate, 1);
     const youbi = dateFns.getDay(tommorowDate);
     const message = gomiDefine[youbi];
 
