@@ -4,16 +4,31 @@ import * as dotenv from "dotenv";
 dotenv.config();
 
 export async function handler(event: APIGatewayEvent, context?: Context): Promise<string> {
-    const token = process.env['SECRET'];
+    try {
+        return await makeRequest('OK');
+    } catch (error) {
+        return 'failed'
+    }
+}
+
+async function makeRequest(message: string) {
+    const url = process.env['WEBHOOK_URL'];
     const baseRequest = axios.create({
-        baseURL: `url`,
-        headers: { Authorization: `Bearer ${token}` },
+        baseURL: url,
         responseType: 'json'
     });
 
-    const res = await baseRequest.get('path')
-        .catch(e => {
-            console.error(e);
-        });
-    return res ? 'success!' : 'failured';
+    return new Promise<any>(async (resolve, reject) => {
+        baseRequest.post('', {
+            text: message
+        })
+            .then(res => {
+                resolve(res)
+            })
+            .catch(e => {
+                console.error(e);
+                reject(e)
+            });
+    })
+
 }
