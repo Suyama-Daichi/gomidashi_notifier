@@ -33,8 +33,8 @@ const gomiDefine: GomiDefine = {
 }
 
 export async function handler(event: APIGatewayEvent, context?: Context) {
-    const currentDate = new Date();
-    const tommorowDate = dateFns.addDays(currentDate, 17);
+    const currentDate = dateFns.addHours(new Date(), 9);
+    const tommorowDate = dateFns.addDays(currentDate, 1);
     const youbi = dateFns.getDay(tommorowDate);
     let typesOfGomi = gomiDefine[youbi].filter(f => f.type);
 
