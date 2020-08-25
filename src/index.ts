@@ -37,19 +37,24 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
     const tommorowDate = dateFns.addDays(currentDate, 1);
     const youbi = dateFns.getDay(tommorowDate);
     let typesOfGomi = gomiDefine[youbi].filter(f => f.type);
-
+    const response = {
+        statusCode: 200,
+        body: { message: typesOfGomi }
+    };
+    
     if (typesOfGomi.length !== 0) {
         if (dateFns.getWeekOfMonth(tommorowDate) % 2 !== 0) {
             typesOfGomi = typesOfGomi.filter(f => !f.isOnceEveryTwoWeeks)
         }
         let message = `明日は\n${typesOfGomi.map(m => `[${m.type}]...${m.until}まで`).join('\n')}\nの日です！`;
-        makeRequest(message);
+        try {
+            await makeRequest(message);
+        } catch (error) {
+            response.body.message = error;
+            response.statusCode = 500;
+        }
     }
 
-    const response = {
-        statusCode: 200,
-        body: { message: typesOfGomi }
-    };
 
     return response
 }
