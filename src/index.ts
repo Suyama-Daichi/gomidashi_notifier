@@ -16,20 +16,17 @@ const gomiDefine = {
 
 export async function handler(event: APIGatewayEvent, context?: Context) {
     const currentDate = new Date();
-    const tommorowDate = dateFns.addDays(currentDate, 1);
+    const tommorowDate = dateFns.addDays(currentDate, 18);
     const youbi = dateFns.getDay(tommorowDate);
-    let message = gomiDefine[youbi];
+    const message = gomiDefine[youbi];
 
-    if (youbi === 6 && dateFns.getWeekOfMonth(tommorowDate) % 2 === 0) {
-        message = null
-    }
 
     const response = {
         statusCode: 200,
         body: { message: message }
     };
 
-    if (message) {
+    if (message && (youbi === 6 && dateFns.getWeekOfMonth(tommorowDate) % 2 === 0)) {
         try {
             response.body.message = (await makeRequest(message)).data;
         } catch (error) {
