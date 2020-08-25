@@ -4,39 +4,52 @@ import * as dotenv from "dotenv";
 import * as dateFns from 'date-fns';
 dotenv.config();
 
-const gomiDefine = {
-    0: null,
-    1: null,
-    2: ['燃えるゴミ'],
-    3: null,
-    4: ['容器包装プラスチック・古紙'],
-    5: ['燃えるゴミ'],
-    6: ['ビン・缶・ペットボトル', '不燃ごみ'],
+const gomiDefine: GomiDefine = {
+    0: [
+        { type: null, until: null, isOnceEveryTwoWeeks: false }
+    ],
+    1: [
+        { type: null, until: null, isOnceEveryTwoWeeks: false }
+    ],
+    2: [
+        { type: '燃えるゴミ', until: '8時', isOnceEveryTwoWeeks: false }
+    ],
+    3: [
+        { type: null, until: null, isOnceEveryTwoWeeks: false }
+    ],
+    4: [
+        { type: '容器包装プラスチック', until: '8時', isOnceEveryTwoWeeks: false },
+        { type: '古紙・段ボール', until: '8時', isOnceEveryTwoWeeks: false }
+    ],
+    5: [
+        { type: '燃えるゴミ', until: '8時', isOnceEveryTwoWeeks: false }
+    ],
+    6: [
+        { type: '燃えないゴミ', until: '8時', isOnceEveryTwoWeeks: true },
+        { type: 'ビン', until: '9時', isOnceEveryTwoWeeks: false },
+        { type: '缶', until: '9時', isOnceEveryTwoWeeks: false },
+        { type: 'ペットボトル', until: '9時', isOnceEveryTwoWeeks: false }
+    ]
 }
 
 export async function handler(event: APIGatewayEvent, context?: Context) {
     const currentDate = new Date();
-    const tommorowDate = dateFns.addDays(currentDate, 4);
+    const tommorowDate = dateFns.addDays(currentDate, 17);
     const youbi = dateFns.getDay(tommorowDate);
-    const typesOfGomi = gomiDefine[youbi];
+    let typesOfGomi = gomiDefine[youbi].filter(f => f.type);
 
+    if (typesOfGomi.length !== 0) {
+        if (dateFns.getWeekOfMonth(tommorowDate) % 2 !== 0) {
+            typesOfGomi = typesOfGomi.filter(f => !f.isOnceEveryTwoWeeks)
+        }
+        let message = `明日は\n${typesOfGomi.map(m => `[${m.type}]...${m.until}まで`).join('\n')}\nの日です！`;
+        makeRequest(message);
+    }
 
     const response = {
         statusCode: 200,
         body: { message: typesOfGomi }
     };
-
-    if (typesOfGomi) {
-        if ((youbi === 6 && dateFns.getWeekOfMonth(tommorowDate) % 2 !== 0)) {
-            typesOfGomi.pop();
-        }
-
-        try {
-            response.body.message = (await makeRequest(typesOfGomi.join('・'))).data;
-        } catch (error) {
-            response.body.message = ['failed']
-        }
-    }
 
     return response
 }
@@ -50,7 +63,7 @@ async function makeRequest(message: string) {
 
     return new Promise<AxiosResponse>(async (resolve, reject) => {
         baseRequest.post('', {
-            text: `明日は${message}の日です。`
+            text: message
         })
             .then(res => {
                 resolve(res)
@@ -61,4 +74,20 @@ async function makeRequest(message: string) {
             });
     })
 
+}
+
+interface GomiDefine {
+    0: Gomi[],
+    1: Gomi[]
+    2: Gomi[]
+    3: Gomi[]
+    4: Gomi[]
+    5: Gomi[]
+    6: Gomi[]
+}
+
+interface Gomi {
+    until: '8時' | '9時' | null;
+    type: null | '燃えるゴミ' | '燃えないゴミ' | '缶' | 'ビン' | 'ペットボトル' | '容器包装プラスチック' | '古紙・段ボール';
+    isOnceEveryTwoWeeks: boolean;
 }
