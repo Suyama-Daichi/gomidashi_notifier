@@ -31,6 +31,7 @@
   "dependencies": {
     "@types/aws-lambda": "^8.10.61",
     "@types/axios": "^0.14.0",
+    "@types/dotenv": "^8.2.0",
     "aws-sdk": "^2.738.0",
     "axios": "^0.20.0"
   }
