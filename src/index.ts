@@ -74,7 +74,7 @@ async function makeRequest(message: string) {
                     type: "section",
                     text: {
                         type: "mrkdwn",
-                        text: message
+                        text: message + 'https://www.city.nerima.tokyo.jp/kurashi/gomi/wakekata/index.html'
                     }
                 }]
         },
