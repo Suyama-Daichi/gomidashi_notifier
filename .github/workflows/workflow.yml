@@ -12,7 +12,7 @@ on:
 jobs:
   # This workflow contains a single job called "build"
   build:
-    name: 'ビルド開始'
+    name: 'ビルド&デプロイ'
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -32,6 +32,7 @@ jobs:
     - name: Install Dependencies
       run: |
         npm i
+        npm i -g node-lambda
         
     - name: Deploy to lambda
       run: |
