@@ -36,4 +36,4 @@ jobs:
         
     - name: Deploy to lambda
       run: |
-        npm run deploy --accessKey=${{secrets.ACCESS_KEY}} --secretKey=${{secrets.SECRET_KEY}} --functionName=gomidashi-notifier --role=${{secrets.AWS_ROLE}} --layers="arn:aws:lambda:ap-northeast-1:047091748707:layer:SmartHomeController:2" --excludeGlobs="index.js.map caller.js caller.js.map"
+        npm run deploy --accessKey ${{secrets.ACCESS_KEY}} --secretKey ${{secrets.SECRET_KEY}} --functionName gomidashi-notifier --role ${{secrets.AWS_ROLE}} --layers "arn:aws:lambda:ap-northeast-1:047091748707:layer:SmartHomeController:2" --excludeGlobs "index.js.map caller.js caller.js.map"
