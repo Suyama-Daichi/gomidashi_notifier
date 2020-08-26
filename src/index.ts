@@ -41,12 +41,12 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
         statusCode: 200,
         body: { message: typesOfGomi }
     };
-    
+
     if (typesOfGomi.length !== 0) {
         if (dateFns.getWeekOfMonth(tommorowDate) % 2 !== 0) {
             typesOfGomi = typesOfGomi.filter(f => !f.isOnceEveryTwoWeeks)
         }
-        let message = `明日は\n${typesOfGomi.map(m => `[${m.type}]...${m.until}まで`).join('\n')}\nの日です！`;
+        let message = `明日は\n${typesOfGomi.map(m => ` \`${m.type}\` ... \`${m.until}\` まで`).join('\n')}\nの日です！`;
         try {
             await makeRequest(message);
         } catch (error) {
@@ -68,8 +68,17 @@ async function makeRequest(message: string) {
 
     return new Promise<AxiosResponse>(async (resolve, reject) => {
         baseRequest.post('', {
-            text: message
-        })
+            text: message,
+            blocks: [
+                {
+                    type: "section",
+                    text: {
+                        type: "mrkdwn",
+                        text: message
+                    }
+                }]
+        },
+        )
             .then(res => {
                 resolve(res)
             })
