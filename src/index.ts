@@ -38,7 +38,6 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
     const tommorowDate = dateFns.addDays(currentDate, 1);
     const youbi = dateFns.getDay(tommorowDate);
     let typesOfGomi = gomiDefine[youbi].filter(f => f.type);
-    let response: Response;
 
     if (typesOfGomi.length !== 0) {
         if (dateFns.getWeekOfMonth(tommorowDate) % 2 !== 0) {
