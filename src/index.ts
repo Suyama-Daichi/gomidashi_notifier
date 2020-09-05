@@ -1,3 +1,4 @@
+import { Response } from './APIGWResponse.d';
 import { Context, APIGatewayEvent } from "aws-lambda";
 import axios, { AxiosResponse } from 'axios';
 import * as dotenv from "dotenv";
@@ -37,10 +38,7 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
     const tommorowDate = dateFns.addDays(currentDate, 1);
     const youbi = dateFns.getDay(tommorowDate);
     let typesOfGomi = gomiDefine[youbi].filter(f => f.type);
-    const response = {
-        statusCode: 200,
-        body: { message: typesOfGomi }
-    };
+    let response: Response;
 
     if (typesOfGomi.length !== 0) {
         if (dateFns.getWeekOfMonth(tommorowDate) % 2 !== 0) {
@@ -50,13 +48,21 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
         try {
             await makeRequest(message);
         } catch (error) {
-            response.body.message = error;
-            response.statusCode = 500;
+            return {
+                isBase64Encoded: false,
+                statusCode: 500,
+                headers: {},
+                body: JSON.stringify({ message: typesOfGomi })
+            };
         }
     }
 
-
-    return response
+    return {
+        isBase64Encoded: false,
+        statusCode: 200,
+        headers: {},
+        body: JSON.stringify({ message: typesOfGomi })
+    };
 }
 
 async function makeRequest(message: string) {
