@@ -48,7 +48,7 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
         try {
             await makeRequest(message);
         } catch (error) {
-            response = {
+            return {
                 isBase64Encoded: false,
                 statusCode: 500,
                 headers: {},
@@ -57,14 +57,12 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
         }
     }
 
-    response = {
+    return {
         isBase64Encoded: false,
         statusCode: 200,
         headers: {},
         body: JSON.stringify({ message: typesOfGomi })
     };
-
-    return response;
 }
 
 async function makeRequest(message: string) {
