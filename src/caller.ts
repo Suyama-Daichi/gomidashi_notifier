@@ -1,8 +1,9 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { handler } from './index';
+import fs from 'fs';
 
 export const apiGatewayEvent: APIGatewayEvent = {
-    body: "",
+    body: fs.readFileSync('./event.json', 'utf8'),
     headers: {},
     httpMethod: 'POST',
     isBase64Encoded: false,
