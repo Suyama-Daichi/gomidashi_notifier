@@ -34,19 +34,19 @@ const gomiDefine: GomiDefine = {
 }
 
 export async function handler(event: APIGatewayEvent, context?: Context) {
+    const body: Body = event.body ? JSON.parse(event.body) : null;
+    const dayStr = ['今日', '明日', '明後日', '明々後日'];
     const currentDate = dateFns.addHours(new Date(), 9);
-    const tommorowDate = dateFns.addDays(currentDate, 1);
-    const youbi = dateFns.getDay(tommorowDate);
+    const targetDate = dateFns.addDays(currentDate, body.target);
+    const youbi = dateFns.getDay(targetDate);
     let typesOfGomi = gomiDefine[youbi].filter(f => f.type);
-    let response: Response;
 
     if (typesOfGomi.length !== 0) {
-        if (dateFns.getWeekOfMonth(tommorowDate) % 2 !== 0) {
+        if (dateFns.getWeekOfMonth(targetDate) % 2 !== 0) {
             typesOfGomi = typesOfGomi.filter(f => !f.isOnceEveryTwoWeeks)
         }
-        let message = `明日は\n${typesOfGomi.map(m => ` \`${m.type}\` ... \`${m.until}\` まで`).join('\n')}\nの日です！`;
         try {
-            await makeRequest(message);
+            await makeRequest(`${dayStr[body.target]}は\n${typesOfGomi.map(m => ` \`${m.type}\` ... \`${m.until}\` まで`).join('\n')}\nの日です！`);
         } catch (error) {
             return {
                 isBase64Encoded: false,
@@ -55,6 +55,8 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
                 body: JSON.stringify({ message: typesOfGomi })
             };
         }
+    } else {
+        await makeRequest(`${dayStr[body.target]}は何のゴミの日でもありません`);
     }
 
     return {
@@ -110,4 +112,8 @@ interface Gomi {
     until: '8時' | '9時' | null;
     type: null | '燃えるゴミ' | '燃えないゴミ' | '缶' | 'ビン' | 'ペットボトル' | '容器包装プラスチック' | '古紙・段ボール';
     isOnceEveryTwoWeeks: boolean;
+}
+
+interface Body {
+    target: number;
 }
