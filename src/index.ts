@@ -45,9 +45,8 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
         if (dateFns.getWeekOfMonth(targetDate) % 2 !== 0) {
             typesOfGomi = typesOfGomi.filter(f => !f.isOnceEveryTwoWeeks)
         }
-        let message = `${dayStr[body.target]}は\n${typesOfGomi.map(m => ` \`${m.type}\` ... \`${m.until}\` まで`).join('\n')}\nの日です！`;
         try {
-            await makeRequest(message);
+            await makeRequest(`${dayStr[body.target]}は\n${typesOfGomi.map(m => ` \`${m.type}\` ... \`${m.until}\` まで`).join('\n')}\nの日です！`);
         } catch (error) {
             return {
                 isBase64Encoded: false,
@@ -56,6 +55,8 @@ export async function handler(event: APIGatewayEvent, context?: Context) {
                 body: JSON.stringify({ message: typesOfGomi })
             };
         }
+    } else {
+        await makeRequest(`${dayStr[body.target]}は何のゴミの日でもありません`);
     }
 
     return {
