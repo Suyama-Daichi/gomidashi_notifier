@@ -34,7 +34,7 @@ const gomiDefine: GomiDefine = {
 }
 
 export async function handler(event: APIGatewayEvent, context?: Context) {
-    const body: Body = event.body ? JSON.parse(event.body) : null;
+    const body: Body = event.body ? typeof event.body === 'string' ? JSON.parse(event.body) : event.body : null;
     const dayStr = ['今日', '明日', '明後日', '明々後日'];
     const currentDate = dateFns.addHours(new Date(), 9);
     const targetDate = dateFns.addDays(currentDate, body.target);
